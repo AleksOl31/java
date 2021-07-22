@@ -1,6 +1,5 @@
 package ru.aleksol.tictactoe;
 
-import java.util.Random;
 import java.util.Scanner;
 
 public class TicTacToe {
@@ -100,9 +99,10 @@ public class TicTacToe {
     }
 
     static boolean isWin(char symbol) {
-        int lineCounter = getMaxNumLineSymbols(symbol);
-        int diagonalCounter = getMaxNumDiagonalSymbol(symbol);
-        return (lineCounter >= WIN_CHIPS || diagonalCounter >= WIN_CHIPS);
+        int horCounter = getMaxNumLineSymbols(symbol, 1);
+        int vertCounter = getMaxNumLineSymbols(symbol, 2);
+        int diagonalsCounter = getMaxNumInDiagonals(symbol);
+        return (horCounter >= WIN_CHIPS || vertCounter >= WIN_CHIPS || diagonalsCounter >= WIN_CHIPS);
     }
 
     static boolean isDraw() {
@@ -116,14 +116,14 @@ public class TicTacToe {
         return true;
     }
 
-    static int getMaxNumLineSymbols(char symbol) {
+    static int getMaxNumLineSymbols(char symbol, int line) {
         int counter = 0;
         int maxNum = counter;
 
         for (int i = 0; i < SIZE; i++) {
             counter = 0;
             for (int j = 0; j < SIZE; j++) {
-                if (playingField[i][j] == symbol || playingField[j][i] == symbol) {
+                if (getArrayItem(i, j, line) == symbol) {
                     ++counter;
                     if (maxNum < counter) {
                         maxNum = counter;
@@ -133,15 +133,15 @@ public class TicTacToe {
                 }
             }
         }
-        System.out.println("Max num in hor or vert line " + maxNum);
+        System.out.printf("Max num in %s line %s%n", line, maxNum);
         return maxNum;
     }
 
-    static int getMaxNumDiagonalSymbol(char symbol) {
+    static int getMaxNumDiagonalSymbol(char symbol, int line) {
         int counter = 0;
         int maxNum = counter;
         for (int i = 0; i < SIZE; i++) {
-            if (playingField[i][i] == symbol || playingField[i][SIZE - i - 1] == symbol) {
+            if (getArrayItem(i, 0, line) == symbol) {
                 counter++;
                 if (maxNum < counter) {
                     maxNum = counter;
@@ -150,8 +150,66 @@ public class TicTacToe {
                 counter = 0;
             }
         }
-        System.out.println("Max num in diagonal " + maxNum);
+        System.out.printf("Max num in %s diagonal %s%n", line - 2, maxNum);
         return maxNum;
+    }
+
+    static int getMaxNumInDiagonals(char symbol) {
+        int maxNum = 0;
+        for (int l = 3; l <= 8; l++) {
+            int number = getMaxNumDiagonalSymbol(symbol, l);
+            if (maxNum < number) {
+                maxNum = number;
+            }
+        }
+        return maxNum;
+    }
+
+    static char getArrayItem(int x, int y, int line) {
+        char item = EMPTY;
+        switch (line) {
+            case 1:
+                item = playingField[x][y];
+                break;
+            case 2:
+                item = playingField[y][x];
+                break;
+            case 3:
+                item = playingField[x][x];
+                break;
+            case 4:
+                item = playingField[x][SIZE - x - 1];
+                break;
+            case 5:
+                if (x < SIZE - 1) {
+                    item = playingField[x][x + 1];
+                } else {
+                    item = EMPTY;
+                }
+                break;
+            case 6:
+                if (x > 0) {
+                    item = playingField[x][x - 1];
+                } else {
+                    item = EMPTY;
+                }
+                break;
+            case 7:
+                if (x < SIZE - 1) {
+                    item = playingField[x][SIZE - x - 2];
+                } else {
+                    item = EMPTY;
+                }
+                break;
+            case 8:
+                if (x > 0) {
+                    item = playingField[x][SIZE - x];
+                } else {
+                    item = EMPTY;
+                }
+                break;
+        }
+        return item;
     }
 
 
